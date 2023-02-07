@@ -26,6 +26,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [13 - hot reload bindings.4coder](#c13)
 - [14 - reloading helpers](#c14)
 - [15 - loc command](#c15)
+- [16 - file explorer command](#c16)
 
 ---
 
@@ -182,6 +183,11 @@ Let's expedite the process a bit. We won't give keybinds here, since they're muc
 While we're iterating all buffers, might as well do something useful.\
 We'll use filter by buffers with code mappings as a proxy for "significant"\
 We can also take advantage of `stb_sprintf`'s handy comma separator specifier
+
+</br>
+
+### 16 - file explorer command <a name="c16"/>
+I just wanted a faster way to open explorer in the current directory from 4coder... moving along
 
 </br>
 
