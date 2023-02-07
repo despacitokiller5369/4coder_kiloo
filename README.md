@@ -29,6 +29,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [16 - file explorer command](#c16)
 - [17 - modal auto-complete {} on enter](#c17)
 - [18 - bump column edit spaces](#c18)
+- [19 - block functions and scope highlights](#c19)
 
 ---
 
@@ -210,6 +211,17 @@ This lets me place the cursor on the right-most char, place a column\
 Then while holding shift, repeat `↑ ← <Space>` as necessary
 
 Also serves the double purpose of allowing me to place a vertical visual guide
+
+</br>
+
+### 19 - block functions and scope highlights <a name="c19"/>
+Interestingly, the implementation for scope highlights came from writing Visual Block Mode in [4coder_vim](https://github.com/B-Y-P/4coder_vim)\
+If you were to `text_layout_character_on_screen` the `{` and `}`, it would only work when both are on screen\
+But you can get around this using `view_relative_xy_of_pos` and `view_pos_at_relative_xy`\
+Graphics intuition of "do this in model space, rather than screen space"
+
+Since I already had the code lying around, I included the methods for iterating the line ranges of a block selection\
+Maybe there will be a *future commit* which will have a use for them... ;)
 
 </br>
 
