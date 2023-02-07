@@ -27,6 +27,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [14 - reloading helpers](#c14)
 - [15 - loc command](#c15)
 - [16 - file explorer command](#c16)
+- [17 - modal auto-complete {} on enter](#c17)
 
 ---
 
@@ -188,6 +189,17 @@ We can also take advantage of `stb_sprintf`'s handy comma separator specifier
 
 ### 16 - file explorer command <a name="c16"/>
 I just wanted a faster way to open explorer in the current directory from 4coder... moving along
+
+</br>
+
+### 17 - modal auto-complete {} on enter <a name="c17"/>
+Standard text editor stuff, but there's a slight catch if we're not careful\
+Default behavior of enter will insert a `\n` when unhandled,\
+but if in a jump buffer, it gets handled when taking the jump for the  current line
+
+So first we try to get a buffer using `Access_ReadWriteVisible` and if it fails, it might be `Access_ReadVisible`\
+This let's us forward the behavior back to `goto_jump_at_cursor`\
+Otherwise, we'll do the standard close-brace insert when necessary
 
 </br>
 
