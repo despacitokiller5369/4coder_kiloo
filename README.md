@@ -34,6 +34,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [21 - custom cpp token kinds](#c21)
 - [22 - enums are parsed and indexed](#c22)
 - [23 - globals are parsed and indexed](#c23)
+- [24 - move selected line ranges up/down](#c24)
 
 ---
 
@@ -264,6 +265,10 @@ If at any point, we fail, we reset our token-stream position and it's no harm, n
 
 </br>
 
+### 24 - move selected line ranges up/down <a name="c24"/>
+This ones another quality of life feature which isn't a game changer, but nice to have
+
+</br>
 
 ---
 
