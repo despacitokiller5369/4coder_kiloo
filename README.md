@@ -38,6 +38,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [25 - example kill-rectangle](#c25)
 - [26 - draw comment divider lines](#c26)
 - [27 - divider movements](#c27)
+- [28 - draw hovered token underlines](#c28)
 
 ---
 
@@ -296,6 +297,12 @@ Just a nice and simple change to help visually 'slice' the code into sections wi
 ### 27 - divider movements <a name="c27"/>
 Okay, but now that I can *see* the section I want to jump to\
 I'd like to... y'know, actually *jump* to it now
+
+</br>
+
+### 28 - draw hovered token underlines <a name="c28"/>
+Helps provide a more passive visual for "where else is this being used?"\
+Without having to forcibly substring search and fill your view with highlights
 
 </br>
 
