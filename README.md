@@ -39,6 +39,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [26 - draw comment divider lines](#c26)
 - [27 - divider movements](#c27)
 - [28 - draw hovered token underlines](#c28)
+- [29 - paint @annotations in comments](#c29)
 
 ---
 
@@ -303,6 +304,11 @@ I'd like to... y'know, actually *jump* to it now
 ### 28 - draw hovered token underlines <a name="c28"/>
 Helps provide a more passive visual for "where else is this being used?"\
 Without having to forcibly substring search and fill your view with highlights
+
+</br>
+
+### 29 - paint @annotations in comments <a name="c29"/>
+We have code to iterate over comment tokens, so it's easy enough add a scan for '@'
 
 </br>
 
