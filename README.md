@@ -41,6 +41,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [28 - draw hovered token underlines](#c28)
 - [29 - paint @annotations in comments](#c29)
 - [30 - scope end annotations](#c30)
+- [31 - compiler error annotations](#c31)
 
 ---
 
@@ -321,6 +322,15 @@ If you don't know *what* scope you're currently at the end of, you'll have to do
 And to double check, you have to go all the way up, just to go right back down\
 Let's just have the editor *tell* you
 
+</br>
+
+### 31 - compiler error annotations <a name="c31"/>
+Let's take 4coder's jump to error and use it to render *where* and *what* those errors are\
+so we can minimize the amount of neck-craning it takes when moving between code and terminal
+
+There's some interesting behavior with how 4coder stores per-buffer pos and line numbers of errors\
+By making a bit of an intrusive change which relies on reclaiming some otherwise unused padding,\
+we can avoid a lot of redundant work when drawing each individual error message
 
 </br>
 
