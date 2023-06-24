@@ -44,6 +44,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [31 - compiler error annotations](#c31)
 - [32 - function peek tooltip](#c32)
 - [33 - ctrl-movements](#c33)
+- [34 - lister setup](#c34)
 
 ---
 
@@ -346,6 +347,14 @@ So let's just show you the definition, as you type
 ### 33 - ctrl-movements <a name="c33"/>
 Default behavior for ctrl-backspace and similar ctrl-movements is *slightly* different from other text editors
 
+</br>
+
+### 34 - lister setup <a name="c34"/>
+Remember when in <100 loc we had a [custom View context](#c22)?\
+Well, here's the final exam
+
+Most of this is just copy-pasted boilerplace, except for the trick of `run_lister` becoming definable at the include site\
+This lets me rewrite the base lister behavior, and have it apply to all the previous listers
 
 </br>
 
