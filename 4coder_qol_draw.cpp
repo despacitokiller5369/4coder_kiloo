@@ -203,6 +203,73 @@ qol_draw_comments(Application_Links *app, Buffer_ID buffer, Text_Layout_ID text_
 }
 
 function void
+qol_draw_function_tooltip_inner(Application_Links *app, Arena *arena, Buffer_ID buffer, Code_Index_Note *note, Range_f32 x_range, i64 depth, Range_i64 range){
+  Range_i64 def_range = note->pos;
+  find_nest_side(app, note->file->buffer, def_range.end+1, FindNest_Paren|FindNest_Balanced|FindNest_EndOfToken, Scan_Forward, NestDelim_Close, &def_range.end);
+
+  String_Const_u8 sig = push_buffer_range(app, arena, note->file->buffer, def_range);
+  sig = string_condense_whitespace(arena, sig);
+
+  Face_Metrics metrics = get_face_metrics(app, qol_small_face);
+  f32 wid = 2.f;
+  f32 pad = 2.f;
+  Rect_f32 rect = {};
+  rect.p0 = qol_cur_cursor_pos + V2f32(0, 2.f + depth*(metrics.line_height + pad + 2.f*wid));
+  rect.p1 = rect.p0 + V2f32(sig.size*metrics.normal_advance, wid + metrics.line_height);
+  f32 x_offset = ((rect.x1 > x_range.max)*(rect.x1 - x_range.max) -
+                  (rect.x0 < x_range.min)*(rect.x0 - x_range.max));
+  rect.x0 -= x_offset;
+  rect.x1 -= x_offset;
+  draw_rectangle_fcolor(app, rect, 3.f, fcolor_id(defcolor_back));
+  rect.x0 -= pad;
+  rect.x1 += pad;
+  draw_rectangle_outline_fcolor(app, rect, 3.f, wid, fcolor_id(defcolor_ghost_character));
+  draw_string(app, qol_small_face, sig, rect.p0 + (pad + wid)*V2f32(1,1), fcolor_id(defcolor_ghost_character));
+}
+
+function void
+qol_draw_function_tooltip(Application_Links *app, Buffer_ID buffer, Range_f32 x_range, i64 pos){
+  Token_Array tokens = get_token_array_from_buffer(app, buffer);
+  if (tokens.tokens == 0){ return; }
+  Token_Iterator_Array it = token_iterator_pos(0, &tokens, pos);
+  Token *token = token_it_read(&it);
+
+  if (token->kind == TokenBaseKind_ParentheticalOpen){
+    pos = token->pos + token->size;
+  } else if (token_it_dec_all(&it)){
+    token = token_it_read(&it);
+    if (token->kind == TokenBaseKind_ParentheticalClose && pos == token->pos + token->size){
+      pos = token->pos;
+    }
+  }
+
+  i64 count = 0;
+  Scratch_Block scratch(app);
+  Range_i64_Array ranges = get_enclosure_ranges(app, scratch, buffer, pos, FindNest_Paren);
+
+  code_index_lock();
+  for (i64 i=0; i < ranges.count; i += 1){
+    Scratch_Block temp(app, scratch);
+    Range_i64 range = ranges.ranges[i];
+    i64 f_pos = range.min-1;
+    Token_Iterator_Array cur_it = token_iterator_pos(0, &tokens, f_pos);
+    token = token_it_read(&cur_it);
+
+    if (token->kind == TokenBaseKind_Identifier){
+      String_Const_u8 lexeme = push_token_lexeme(app, temp, buffer, token);
+      Code_Index_Note *note = code_index_note_from_string(lexeme);
+      if (note == NULL){ continue; }
+      if (note->note_kind == CodeIndexNote_Function ||
+          note->note_kind == CodeIndexNote_Macro)
+      {
+        qol_draw_function_tooltip_inner(app, temp, buffer, note, x_range, ++count, range);
+      }
+    }
+  }
+  code_index_unlock();
+}
+
+function void
 qol_draw_compile_errors(Application_Links *app, Buffer_ID buffer, Text_Layout_ID text_layout_id, Buffer_ID jump_buffer){
   if (jump_buffer == 0){ return; }
 
@@ -364,6 +431,10 @@ qol_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id, Buff
 
   // NOTE(allen): put the actual text on the actual screen
   draw_text_layout_default(app, text_layout_id);
+
+  if (rect_contains_point(rect, qol_cur_cursor_pos)){
+    qol_draw_function_tooltip(app, buffer, If32(rect.x0, rect.x1), cursor_pos);
+  }
 
   draw_set_clip(app, prev_clip);
 }
