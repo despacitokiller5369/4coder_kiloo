@@ -47,6 +47,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [34 - lister setup](#c34)
 - [35 - lister ctrl-backspace](#c35)
 - [36 - lister multi-column grid](#c36)
+- [37 - lister bot view](#c37)
 
 ---
 
@@ -372,6 +373,13 @@ Or, use a temp Buffer to wrap the `ctrl-backspace` behavior, and give an API for
 
 ### 36 - lister multi-column grid <a name="c36"/>
 Try to show a bit more with the shorter listers
+
+</br>
+
+### 37 - lister bot view <a name="c37"/>
+Trying to make listers a bit more joyful to use, not fully cover the code you're working on\
+While this is *much* simpler than my initial attempt (one of the first customizations I wrote)\
+I still feel it's far from perfect
 
 </br>
 
