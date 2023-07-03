@@ -46,6 +46,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [33 - ctrl-movements](#c33)
 - [34 - lister setup](#c34)
 - [35 - lister ctrl-backspace](#c35)
+- [36 - lister multi-column grid](#c36)
 
 ---
 
@@ -367,6 +368,10 @@ Since the `ctrl-backspace` works on Buffers and not strings, we have a choice to
 We could attach our lister to it's own Buffer and keep it in sync with its query string (far more effort than it demands)\
 Or, use a temp Buffer to wrap the `ctrl-backspace` behavior, and give an API for String -> String method :)
 
+</br>
+
+### 36 - lister multi-column grid <a name="c36"/>
+Try to show a bit more with the shorter listers
 
 </br>
 
