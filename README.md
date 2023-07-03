@@ -37,6 +37,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [24 - move selected line ranges up/down](#c24)
 - [25 - example kill-rectangle](#c25)
 - [26 - draw comment divider lines](#c26)
+- [27 - divider movements](#c27)
 
 ---
 
@@ -289,6 +290,12 @@ This is because `get_next_input` acts as a coroutine, allowing us the illusion o
 
 ### 26 - draw comment divider lines <a name="c26"/>
 Just a nice and simple change to help visually 'slice' the code into sections without having to spam `// ... /`'s
+
+</br>
+
+### 27 - divider movements <a name="c27"/>
+Okay, but now that I can *see* the section I want to jump to\
+I'd like to... y'know, actually *jump* to it now
 
 </br>
 
