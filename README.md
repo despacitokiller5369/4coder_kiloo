@@ -21,6 +21,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [08 - hot reload themes](#c08)
 - [09 - interpolate theme](#c09)
 - [10 - hot reload config.4coder](#c10)
+- [11 - hot reload project.4coder](#c11)
 
 ---
 
@@ -145,6 +146,15 @@ Then we can re-use the way 4coder highlights compiler errors by adjusting the co
 Now by outputting those errors to the `*compilation*` buffer, they'll show us exactly where the parser choked
 
 This also changes the default behavior to use the full path and avoid double-slashes e.g. `C:/4coder//config.4coder`
+
+</br>
+
+### 11 - hot reload project.4coder <a name="c11"/>
+Continuing the trend, let's repeat for `project.4coder` files\
+Since this is becoming a pattern, we can hoist `comp_error` as a function to re-use here\
+We now find ourselves with the issue that by default, `load_project` does project parsing *and* directory loading\
+By splitting these, we can keep simply reparse on file-save
+
 
 </br>
 
