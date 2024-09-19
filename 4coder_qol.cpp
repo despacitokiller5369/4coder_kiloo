@@ -22,6 +22,7 @@ CUSTOM_ID(colors, defcolor_operator);
 
 #include "4coder_default_include.cpp"
 
+#include "plugins/4coder_tabs.cpp"
 #include "plugins/4coder_multi_cursor.cpp"
 
 global b32 qol_opened_brace = false;
