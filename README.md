@@ -33,6 +33,7 @@ Quality of Life custom layer for [4coder](https://mr-4th.itch.io/4coder)
 - [20 - custom lexer generator](#c20)
 - [21 - custom cpp token kinds](#c21)
 - [22 - enums are parsed and indexed](#c22)
+- [23 - globals are parsed and indexed](#c23)
 
 ---
 
@@ -253,6 +254,16 @@ For our case, enum values are particularly helpful to index, since they often re
 So if a function is being passed an enum, jump to definition to switch to a different enum value is invaluable
 
 </br>
+
+### 23 - globals are parsed and indexed <a name="c23"/>
+Same idea as before but we need to be a bit more careful due to 4coder's virtual whitespace system.\
+Take for example: `int global_array[COUNT_Y][COUNT_X] = {};`\
+We scan over parens which need to be balanced, and only once we see `=` is it a valid global.\
+Only once we're sure that all tokens scanned will be consumed do we push nest scopes and index entries\
+If at any point, we fail, we reset our token-stream position and it's no harm, no foul
+
+</br>
+
 
 ---
 
