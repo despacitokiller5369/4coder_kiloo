@@ -152,8 +152,8 @@ qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code
   MC_Bind(move_right_alpha_numeric_or_camel_boundary, KeyCode_Right, KeyCode_Alt);
   MC_Bind(comment_line_toggle,        KeyCode_Semicolon, KeyCode_Control);
   MC_Bind(auto_indent_range,          KeyCode_Tab, KeyCode_Control);
-  MC_Bind(auto_indent_line_at_cursor, KeyCode_Tab, KeyCode_Shift);
   Bind(word_complete,                 KeyCode_Tab);
+  Bind(word_complete_prev,            KeyCode_Tab, KeyCode_Shift);
   Bind(word_complete_drop_down,       KeyCode_Tab, KeyCode_Shift, KeyCode_Control);
   MC_Bind(write_block,                KeyCode_R, KeyCode_Alt);
   MC_Bind(write_todo,                 KeyCode_T, KeyCode_Alt);
