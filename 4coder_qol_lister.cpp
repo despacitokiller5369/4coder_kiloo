@@ -329,10 +329,8 @@ qol_run_lister(Application_Links *app, Lister *lister){
         Key_Code code = in.event.key.code;
         switch (code){
           case KeyCode_Return:{
-            void *user_data = 0;
-            if (0 <= lister->raw_item_index &&
-                lister->raw_item_index < lister->options.count){
-              user_data = lister_get_user_data(lister, lister->raw_item_index);
+            void *user_data = lister_get_user_data(lister, lister->raw_item_index);
+            if (user_data != 0){
               qol_bot_text_append(string_u8_litexpr(" "));
               qol_bot_text_append(lister->highlighted_node->string);
             }
