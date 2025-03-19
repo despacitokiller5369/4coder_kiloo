@@ -171,7 +171,8 @@ function void TAB_render_bar(Application_Links *app, Frame_Info frame_info, View
     }
 
     String_Const_u8 full = push_buffer_base_name(app, scratch, buffer);
-    String_Const_u8 name = (full.size <= max_len ? full : push_stringf(scratch, "%S…", string_prefix(full, max_len-1)));
+    String_Const_u8 pre  = string_prefix(full, max_len-1);
+    String_Const_u8 name = (full.size <= max_len ? full : push_stringf(scratch, "%.*s…", string_expand(pre)));
     Vec2_f32 p0 = V2f32(tabs[i].cur_x, y0);
     Rect_f32 rect = rect_inner(Rf32_xy_wh(p0, tab_dim), -5.f);
     draw_rectangle(app, rect, 5.f, is_current ? cl_curr : cl_rect);
@@ -463,7 +464,6 @@ function void TAB_apply_inner(Application_Links *app){
       if (node->split == TAB_Split_RootRight){ root = right; }
       view = panel_get_view(app, right, Access_Always);
       new_view_settings(app, view);
-      view_set_passive(app, view, false);
     }
   }
 
