@@ -213,6 +213,19 @@ build_language_model(void){
   sm_key("Unsigned");
   sm_key("Signed");
 
+  sm_key("int8_t");
+  sm_key("int16_t");
+  sm_key("int32_t");
+  sm_key("int64_t");
+
+  sm_key("uint8_t");
+  sm_key("uint16_t");
+  sm_key("uint32_t");
+  sm_key("uint64_t");
+
+  sm_key("size_t");
+  sm_key("ptrdiff_t");
+
   sm_select_base_kind(qol_TokenKind_Control);
   sm_key("Break");
   sm_key("Case");
