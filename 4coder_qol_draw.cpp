@@ -256,16 +256,16 @@ qol_draw_function_tooltip_inner(Application_Links *app, Arena *arena, Buffer_ID 
   f32 wid = 2.f;
   f32 pad = 2.f;
   Rect_f32 rect = {};
-  rect.p0 = qol_cur_cursor_pos + V2f32(0, 2.f + depth*(metrics.line_height + pad + 2.f*wid));
+  Vec2_f32 cur_p0 = V2f32(f32_floor32(qol_cur_cursor_pos.x), f32_floor32(qol_cur_cursor_pos.y));
+  rect.p0 = cur_p0 + V2f32(0, 2.f + depth*(1.f + metrics.line_height + pad + 2.f*wid));
   rect.p1 = rect.p0 + V2f32(sig.size*metrics.normal_advance, wid + metrics.line_height);
   f32 x_offset = ((rect.x1 > x_range.max)*(rect.x1 - x_range.max) -
                   (rect.x0 < x_range.min)*(rect.x0 - x_range.max));
   rect.x0 -= x_offset;
   rect.x1 -= x_offset;
   draw_rectangle_fcolor(app, rect, 3.f, fcolor_id(defcolor_back));
-  rect.x0 -= pad;
-  rect.x1 += pad;
-  draw_rectangle_outline_fcolor(app, rect, 3.f, wid, fcolor_id(defcolor_ghost_character));
+  rect = rect_inner(rect, -pad);
+  draw_rectangle_outline_fcolor(app, rect, 3.f, wid, fcolor_id(depth == 1 ? defcolor_cursor : defcolor_ghost_character));
   draw_string(app, qol_small_face, sig, rect.p0 + (pad + wid)*V2f32(1,1), fcolor_id(defcolor_ghost_character));
 }
 
