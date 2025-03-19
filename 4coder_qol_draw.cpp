@@ -127,6 +127,22 @@ qol_draw_scopes(Application_Links *app, View_ID view, Buffer_ID buffer, Text_Lay
   }
 }
 
+enum QOL_Cursor_Kind{
+  QOL_Cursor_Rect,
+  QOL_Cursor_Thin,
+  QOL_Cursor_Under,
+  QOL_Cursor_Corner,
+};
+
+function QOL_Cursor_Kind qol_cursor_kind(String_Const_u8 str){
+  return (string_match(str, string_u8_litexpr("|")) ? QOL_Cursor_Thin   :
+          string_match(str, string_u8_litexpr("_")) ? QOL_Cursor_Under  : 
+          string_match(str, string_u8_litexpr("L")) ? QOL_Cursor_Corner : QOL_Cursor_Rect);
+}
+
+function Rect_f32 rect_vsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_left_right(r, t).min : rect_split_left_right_neg(r, t).max; }
+function Rect_f32 rect_hsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_top_bottom(r, t).min : rect_split_top_bottom_neg(r, t).max; }
+
 function void
 qol_draw_cursor_mark(Application_Links *app, View_ID view_id, b32 is_active_view,
                      Buffer_ID buffer, Text_Layout_ID text_layout_id,
@@ -142,16 +158,40 @@ qol_draw_cursor_mark(Application_Links *app, View_ID view_id, b32 is_active_view
   }
 
   if (!has_highlight_range){
+    Scratch_Block scratch(app);
+    QOL_Cursor_Kind cursor_kind = qol_cursor_kind(def_get_config_string(scratch, vars_save_string_lit("cursor_style")));
+    QOL_Cursor_Kind   mark_kind = qol_cursor_kind(def_get_config_string(scratch, vars_save_string_lit("mark_style")));
+
     ARGB_Color cl_cursor = fcolor_resolve(fcolor_id(defcolor_cursor, default_cursor_sub_id()));
-    if (is_active_view && rect_overlap(nxt_cursor_rect, cur_cursor_rect)){
+    ARGB_Color cl_mark   = fcolor_resolve(fcolor_id(defcolor_mark));
+    if (is_active_view && cursor_kind == QOL_Cursor_Rect && rect_overlap(nxt_cursor_rect, cur_cursor_rect)){
       // NOTE: Only paint once cursor is overlapping (from Jack Punter)
       paint_text_color_pos(app, text_layout_id, cursor_pos, fcolor_id(defcolor_at_cursor));
     }
     else if (!is_active_view){
       draw_rectangle_outline(app, nxt_cursor_rect, roundness, outline_thickness, cl_cursor);
     }
-    draw_character_wire_frame(app, text_layout_id, mark_pos, roundness, outline_thickness, fcolor_id(defcolor_mark));
-    draw_rectangle(app, cur_cursor_rect, roundness, cl_cursor);
+
+    b32 b = cursor_pos < mark_pos;
+    b32 c = mark_pos <= cursor_pos;
+    Vec2_f32 d = V2f32(c ? rect_width(cur_cursor_rect) - 3.f : 0, 0);
+    Rect_f32 rect_shifted = Rf32(cur_cursor_rect.p0-d, cur_cursor_rect.p1-d);
+    switch (cursor_kind){
+      case QOL_Cursor_Rect:    draw_rectangle(app, cur_cursor_rect, roundness, cl_cursor); break;
+      case QOL_Cursor_Thin:    draw_rectangle(app, rect_vsplit(cur_cursor_rect, 1.f, 0), 0.f, cl_cursor); break;
+      case QOL_Cursor_Under:   draw_rectangle(app, rect_hsplit(cur_cursor_rect, 3.f, 1), roundness, cl_cursor); break;
+      case QOL_Cursor_Corner: (draw_rectangle(app, rect_vsplit(cur_cursor_rect, 3.f, 0), roundness, cl_cursor),
+                               draw_rectangle(app, rect_hsplit(rect_shifted,    3.f, c), roundness, cl_cursor)); break;
+    }
+
+    Rect_f32 mark_rect = text_layout_character_on_screen(app, text_layout_id, mark_pos);
+    switch (mark_kind){
+      case QOL_Cursor_Rect:    draw_rectangle_outline(app, mark_rect, roundness, outline_thickness, cl_mark); break;
+      case QOL_Cursor_Thin:    draw_rectangle(app, rect_vsplit(mark_rect, 1.f, 0), 0.f, cl_mark); break;
+      case QOL_Cursor_Under:   draw_rectangle(app, rect_hsplit(mark_rect, 3.f, 1), roundness, cl_mark); break;
+      case QOL_Cursor_Corner: (draw_rectangle(app, rect_vsplit(mark_rect, outline_thickness,  b), roundness, cl_mark),
+                               draw_rectangle(app, rect_hsplit(mark_rect, outline_thickness, !c), roundness, cl_mark));
+    }
   }
 
   MC_render_cursors(app, view_id, text_layout_id);
@@ -549,7 +589,7 @@ qol_render_caller(Application_Links *app, Frame_Info frame_info, View_ID view_id
   }
 
   // NOTE(allen): draw the buffer
-  qol_render_buffer(app, view_id, face_id, buffer, text_layout_id, region);
+  qol_render_buffer(app, view_id, face_id, buffer, text_layout_id, rect_union(line_number_rect, region));
 
   text_layout_free(app, text_layout_id);
   draw_set_clip(app, prev_clip);
