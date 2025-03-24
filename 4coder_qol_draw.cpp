@@ -174,23 +174,31 @@ qol_draw_cursor_mark(Application_Links *app, View_ID view_id, b32 is_active_view
 
     b32 b = cursor_pos < mark_pos;
     b32 c = mark_pos <= cursor_pos;
-    Vec2_f32 d = V2f32(c ? rect_width(cur_cursor_rect) - 3.f : 0, 0);
-    Rect_f32 rect_shifted = Rf32(cur_cursor_rect.p0-d, cur_cursor_rect.p1-d);
-    switch (cursor_kind){
-      case QOL_Cursor_Rect:    draw_rectangle(app, cur_cursor_rect, roundness, cl_cursor); break;
-      case QOL_Cursor_Thin:    draw_rectangle(app, rect_vsplit(cur_cursor_rect, 1.f, 0), 0.f, cl_cursor); break;
-      case QOL_Cursor_Under:   draw_rectangle(app, rect_hsplit(cur_cursor_rect, 3.f, 1), roundness, cl_cursor); break;
-      case QOL_Cursor_Corner: (draw_rectangle(app, rect_vsplit(cur_cursor_rect, 3.f, 0), roundness, cl_cursor),
-                               draw_rectangle(app, rect_hsplit(rect_shifted,    3.f, c), roundness, cl_cursor)); break;
+    f32 w = rect_width(cur_cursor_rect) - 3.f;
+
+    {
+      Vec2_f32 d = V2f32(c ? w : 0, 0);
+      Rect_f32 rect_shifted = Rf32(cur_cursor_rect.p0-d, cur_cursor_rect.p1-d);
+      switch (cursor_kind){
+        case QOL_Cursor_Rect:    draw_rectangle(app, cur_cursor_rect, roundness, cl_cursor); break;
+        case QOL_Cursor_Thin:    draw_rectangle(app, rect_vsplit(cur_cursor_rect, 1.f, 0), 0.f, cl_cursor); break;
+        case QOL_Cursor_Under:   draw_rectangle(app, rect_hsplit(cur_cursor_rect, 3.f, 1), roundness, cl_cursor); break;
+        case QOL_Cursor_Corner: (draw_rectangle(app, rect_vsplit(cur_cursor_rect, 3.f, 0), roundness, cl_cursor),
+                                 draw_rectangle(app, rect_hsplit(rect_shifted,    3.f, c), roundness, cl_cursor)); break;
+      }
     }
 
-    Rect_f32 mark_rect = text_layout_character_on_screen(app, text_layout_id, mark_pos);
-    switch (mark_kind){
-      case QOL_Cursor_Rect:    draw_rectangle_outline(app, mark_rect, roundness, outline_thickness, cl_mark); break;
-      case QOL_Cursor_Thin:    draw_rectangle(app, rect_vsplit(mark_rect, 1.f, 0), 0.f, cl_mark); break;
-      case QOL_Cursor_Under:   draw_rectangle(app, rect_hsplit(mark_rect, 3.f, 1), roundness, cl_mark); break;
-      case QOL_Cursor_Corner: (draw_rectangle(app, rect_vsplit(mark_rect, outline_thickness,  b), roundness, cl_mark),
-                               draw_rectangle(app, rect_hsplit(mark_rect, outline_thickness, !c), roundness, cl_mark));
+    {
+      Rect_f32 mark_rect = text_layout_character_on_screen(app, text_layout_id, mark_pos);
+      Vec2_f32 d = V2f32(b ? w : 0, 0);
+      Rect_f32 rect_shifted = Rf32(mark_rect.p0-d, mark_rect.p1-d);
+      switch (mark_kind){
+        case QOL_Cursor_Rect:    draw_rectangle_outline(app, mark_rect, roundness, outline_thickness, cl_mark); break;
+        case QOL_Cursor_Thin:    draw_rectangle(app, rect_vsplit(mark_rect, 1.f, 0), 0.f, cl_mark); break;
+        case QOL_Cursor_Under:   draw_rectangle(app, rect_hsplit(mark_rect, 3.f, 1), roundness, cl_mark); break;
+        case QOL_Cursor_Corner: (draw_rectangle(app, rect_vsplit(mark_rect,    outline_thickness,  0), roundness, cl_mark),
+                                 draw_rectangle(app, rect_hsplit(rect_shifted, outline_thickness, !c), roundness, cl_mark));
+      }
     }
   }
 
