@@ -389,6 +389,19 @@ CUSTOM_DOC("Create a new panel by horizontally splitting the active panel.")
   view_set_buffer(app, new_view, buffer, 0);
 }
 
+CUSTOM_COMMAND_SIG(vsplit)
+CUSTOM_DOC("Create a new panel by vertically splitting the active panel.")
+{
+  open_panel_vsplit(app);
+}
+
+CUSTOM_COMMAND_SIG(hsplit)
+CUSTOM_DOC("Create a new panel by horizontally splitting the active panel.")
+{
+  open_panel_hsplit(app);
+}
+
+
 ////////////////////////////////
 
 // NOTE(allen): Credits to nj/FlyingSolomon for authoring the original version of this helper.
@@ -606,17 +619,17 @@ setup_essential_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code_i
 function void
 default_4coder_initialize(Application_Links *app, String_Const_u8_Array file_names, i32 override_font_size, b32 override_hinting){
 #define M \
-"Welcome to " VERSION "\n" \
-"If you're new to 4coder there is a built in tutorial\n" \
-"Use the key combination [ X Alt ] (on mac [ X Control ])\n" \
-"Type in 'hms_demo_tutorial' and press enter\n" \
-"\n" \
-"Direct bug reports and feature requests to https://github.com/4coder-editor/4coder/issues\n" \
-"\n" \
-"Other questions and discussion can be directed to editor@4coder.net or 4coder.handmade.network\n" \
-"\n" \
-"The change log can be found in CHANGES.txt\n" \
-"\n"
+  "Welcome to " VERSION "\n" \
+  "If you're new to 4coder there is a built in tutorial\n" \
+  "Use the key combination [ X Alt ] (on mac [ X Control ])\n" \
+  "Type in 'hms_demo_tutorial' and press enter\n" \
+  "\n" \
+  "Direct bug reports and feature requests to https://github.com/4coder-editor/4coder/issues\n" \
+  "\n" \
+  "Other questions and discussion can be directed to editor@4coder.net or 4coder.handmade.network\n" \
+  "\n" \
+  "The change log can be found in CHANGES.txt\n" \
+  "\n"
   print_message(app, string_u8_litexpr(M));
 #undef M
 
