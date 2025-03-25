@@ -58,7 +58,7 @@ CUSTOM_DOC("Automatically remove empty matching operand.")
             || (before == '\'' && c == '\'')
             || (before == '"' && c == '"');
     }
-    inside_pair = (before == '}' && after == '}')
+    inside_pair = (before == '{' && after == '}')
         || (before == '[' && after == ']')
         || (before == '(' && after == ')')
         || (before == '\'' && after == '\'')
@@ -93,9 +93,9 @@ CUSTOM_DOC("Automatically remove empty matching operand.")
             || (before == '\'' && c == '\'')
             || (before == '"' && c == '"');
     }
-    inside_pair = (before == '}' && after == '{')
-        || (before == ']' && after == '[')
-        || (before == ')' && after == '(')
+    inside_pair = (before == '{' && after == '}')
+        || (before == '[' && after == ']')
+        || (before == '(' && after == ')')
         || (before == '\'' && after == '\'')
         || (before == '"' && after == '"');
     i64 delete_start = pos - 1;
