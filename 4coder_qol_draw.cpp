@@ -499,7 +499,9 @@ qol_render_buffer(Application_Links *app, View_ID view_id, Face_ID face_id, Buff
   switch (fcoder_mode){
     case FCoderMode_Original:
     {
+      Rect_f32 r = draw_set_clip(app, prev_clip);
       qol_draw_cursor_mark(app, view_id, is_active_view, buffer, text_layout_id, cursor_roundness, mark_thickness);
+      draw_set_clip(app, r);
     }break;
     case FCoderMode_NotepadLike:
     {
@@ -597,7 +599,7 @@ qol_render_caller(Application_Links *app, Frame_Info frame_info, View_ID view_id
   }
 
   // NOTE(allen): draw the buffer
-  qol_render_buffer(app, view_id, face_id, buffer, text_layout_id, rect_union(line_number_rect, region));
+  qol_render_buffer(app, view_id, face_id, buffer, text_layout_id, region);
 
   text_layout_free(app, text_layout_id);
   draw_set_clip(app, prev_clip);

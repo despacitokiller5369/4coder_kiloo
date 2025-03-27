@@ -30,7 +30,7 @@ CUSTOM_DOC("QOL command for responding to a startup event")
     buffer_set_setting(app, qol_temp_buffer, BufferSetting_ReadOnly, false);
 
     TAB_startup_inner(app);
-    qol_lister_init(app);
+    qol_bview_init(app);
   }
 
   {
@@ -47,7 +47,7 @@ CUSTOM_DOC("QOL command for responding to a startup event")
   qol_small_face = try_create_new_face(app, &desc);
 
   {
-    String_Const_u8 non_word_chars = string_u8_litexpr(" \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-");
+    String_Const_u8 non_word_chars = string_u8_litexpr(" \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-_");
     for (u64 i = 0; i < non_word_chars.size; i += 1){
       Character_Predicate pred = character_predicate_from_character(non_word_chars.str[i]);
       character_predicate_non_word = character_predicate_or(&pred, &character_predicate_non_word);
@@ -76,7 +76,7 @@ qol_tick(Application_Links *app, Frame_Info frame_info){
 
   qol_tick_colors(app, frame_info);
 
-  qol_tick_lister(app, frame_info);
+  qol_tick_bview(app, frame_info);
 
   MC_tick_inner(app, frame_info);
   TAB_tick_inner(app, frame_info);
