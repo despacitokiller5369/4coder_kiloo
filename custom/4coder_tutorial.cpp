@@ -487,10 +487,10 @@ tutorial_slide_basic(Application_Links *app, Arena *arena){
   push_fancy_line(arena, long_details, face, fcolor_id(defcolor_pop1), string_u8_litexpr("Let's start with a few basic commands:"));
 
   tutorial_binding_line(app, arena, long_details, face,
-                        "", "*TextInsert*", "Insert text at cursor");
+                        qol_write_text_input, "Insert text at cursor");
 
   tutorial_binding_line(app, arena, long_details, face,
-                        "", "*ArrowKey*", "Move cursor one character or line");
+                        "", "ArrowKey", "Move cursor one character or line");
 
   tutorial_binding_line(app, arena, long_details, face,
                         backspace_char, delete_char, "Delete previous/next character");
