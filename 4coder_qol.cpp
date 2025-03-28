@@ -3,7 +3,7 @@
 
 //#define SNIPPET_EXPANSION "path/to/snippet.inc"
 
-//#define AUTO_CENTER_AFTER_JUMPS true
+#define AUTO_CENTER_AFTER_JUMPS false
 
 #include "4coder_qol_token.h"
 #include "4coder_qol_lister.h"
@@ -22,6 +22,8 @@ CUSTOM_ID(colors, defcolor_non_text);
 CUSTOM_ID(colors, defcolor_operator);
 
 #include "4coder_default_include.cpp"
+
+#include "4coder_qol_jumps.cpp"
 
 #include "plugins/4coder_tabs.cpp"
 #include "plugins/4coder_multi_cursor.cpp"
@@ -93,7 +95,7 @@ void custom_layer_init(Application_Links *app){
   {
     set_custom_hook(app, HookID_BufferViewerUpdate, default_view_adjust);
 
-    set_custom_hook(app, HookID_ViewEventHandler, default_view_input_handler);
+    set_custom_hook(app, HookID_ViewEventHandler, qol_view_input_handler);
     set_custom_hook(app, HookID_Tick, qol_tick);
     set_custom_hook(app, HookID_RenderCaller, qol_render_caller);
     set_custom_hook(app, HookID_WholeScreenRenderCaller, default_whole_screen_render_caller);
@@ -120,5 +122,4 @@ void custom_layer_init(Application_Links *app){
   String_ID file_map_id = vars_save_string_lit("keys_file");
   String_ID code_map_id = vars_save_string_lit("keys_code");
   qol_setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-  qol_setup_default_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 }

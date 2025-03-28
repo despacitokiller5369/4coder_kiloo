@@ -82,6 +82,9 @@ qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code
   Bind(qol_bview_scroll_up,        KeyCode_PageUp, KeyCode_Control, KeyCode_Shift);
   Bind(qol_bview_scroll_down,      KeyCode_PageDown, KeyCode_Control, KeyCode_Shift);
 
+  Bind(qol_jump_down,              KeyCode_LeftBracket, KeyCode_Control);
+  Bind(qol_jump_up,                KeyCode_RightBracket, KeyCode_Control);
+
   SelectMap(file_id);
   MC_Bind(delete_char,         KeyCode_Delete);
   MC_Bind(backspace_matching_pairs,      KeyCode_Backspace);
@@ -167,9 +170,6 @@ qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code
   Bind(qol_search_identifier,         KeyCode_F, KeyCode_Alt);
   Bind(list_all_locations_of_type_definition,               KeyCode_D, KeyCode_Alt);
   Bind(list_all_locations_of_type_definition_of_identifier, KeyCode_T, KeyCode_Alt, KeyCode_Shift);
-  MC_Bind(open_long_braces,              KeyCode_LeftBracket, KeyCode_Control);
-  MC_Bind(open_long_braces_semicolon,    KeyCode_LeftBracket, KeyCode_Control, KeyCode_Shift);
-  MC_Bind(open_long_braces_break,        KeyCode_RightBracket, KeyCode_Control, KeyCode_Shift);
   Bind(select_surrounding_scope,         KeyCode_LeftBracket, KeyCode_Alt);
   Bind(select_surrounding_scope_maximal, KeyCode_LeftBracket, KeyCode_Alt, KeyCode_Shift);
   Bind(select_prev_scope_absolute,       KeyCode_RightBracket, KeyCode_Alt);

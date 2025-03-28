@@ -12,9 +12,6 @@
 #endif
 #endif
 
-// TODO: Managed_Scope... probably needs to be a user-supplied functions?
-// Better way to determine height based on font rather than hard-code 30.f pixels
-
 #if !defined(TAB_MAX_COUNT)
 #define TAB_MAX_COUNT 8
 #endif
@@ -61,6 +58,7 @@ struct TAB_Node{
   Buffer_Point scroll;
   i64 cursor_pos;
   i64 mark_pos;
+  QOL_View_Jumps jumps;  // NOTE: specific to QOL... *gasp*
 };
 
 struct TAB_Data{
@@ -396,6 +394,7 @@ function TAB_Node TAB_get_node(Application_Links *app, Panel_ID panel, b32 is_ro
     node.scroll     = view_get_buffer_scroll(app, view).target;
     node.cursor_pos = view_get_cursor_pos(app, view);
     node.mark_pos   = view_get_mark_pos(app, view);
+    node.jumps      = *qol_jumps(app, view);
   }
   return node;
 }
@@ -455,6 +454,7 @@ function void TAB_apply_inner(Application_Links *app){
       view_set_buffer_scroll(app, view, Buffer_Scroll{node->scroll, node->scroll}, SetBufferScroll_NoCursorChange);
       view_set_mark(app, view, seek_pos(node->mark_pos));
       view_set_cursor(app, view, seek_pos(node->cursor_pos));
+      *qol_jumps(app, view) = node->jumps;
       if (node->kind == TAB_Kind_LeafActive){ active = view; }
     } else {
       Panel_ID panel = (node->split == TAB_Split_Current ? view_get_panel(app, view) : root);
