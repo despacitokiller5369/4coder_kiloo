@@ -1,5 +1,5 @@
 version(2);
-project_name = "4coder kiloo";
+project_name = "4coder QOL";
 
 indent_with_tabs = false;
 indent_width = 2;

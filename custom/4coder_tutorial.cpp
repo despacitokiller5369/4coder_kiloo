@@ -487,7 +487,7 @@ tutorial_slide_basic(Application_Links *app, Arena *arena){
   push_fancy_line(arena, long_details, face, fcolor_id(defcolor_pop1), string_u8_litexpr("Let's start with a few basic commands:"));
 
   tutorial_binding_line(app, arena, long_details, face,
-                        qol_write_text_input, "Insert text at cursor");
+                        write_text_input, "Insert text at cursor");
 
   tutorial_binding_line(app, arena, long_details, face,
                         "", "ArrowKey", "Move cursor one character or line");
@@ -496,10 +496,10 @@ tutorial_slide_basic(Application_Links *app, Arena *arena){
                         backspace_char, delete_char, "Delete previous/next character");
 
   tutorial_binding_line(app, arena, long_details, face,
-                        qol_ctrl_backwards, qol_ctrl_forwards, "Move left/right to the next *word*");
+                        move_left_whitespace_boundary, move_right_whitespace_boundary, "Move left/right to the next *word*");
 
   tutorial_binding_line(app, arena, long_details, face,
-                        qol_home, seek_end_of_line, "Move to the start/end of the line");
+                        seek_beginning_of_line, seek_end_of_line, "Move to the start/end of the line");
 
   tutorial_binding_line(app, arena, long_details, face,
                         page_up, page_down, "Move up/down by one page");
@@ -543,7 +543,7 @@ tutorial_slide_edit(Application_Links *app, Arena *arena){
   push_fancy_line(arena, long_details, face, fcolor_id(defcolor_pop1), string_u8_litexpr("Now a look at basic editing:"));
 
   tutorial_binding_line(app, arena, long_details, face,
-                        word_complete, word_complete_prev, "Suggest prev/next auto-complete entry for current identifier");
+                        word_complete, word_complete_prev, "Suggest next/prev auto-complete entry for current identifier");
 
   tutorial_binding_line(app, arena, long_details, face,
                         undo, redo, "Undo/Redo");
@@ -573,7 +573,7 @@ tutorial_slide_edit(Application_Links *app, Arena *arena){
                         delete_line, "Delete the current line");
 
   tutorial_binding_line(app, arena, long_details, face,
-                        qol_move_selection_up, qol_move_selection_down, "Move the current line up/down");
+                        move_line_up, move_line_down, "Move the current line up/down");
 
   tutorial_binding_line(app, arena, long_details, face,
                         keyboard_macro_start_recording, keyboard_macro_finish_recording, "Start/Stop recording macro");

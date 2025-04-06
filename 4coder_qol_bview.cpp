@@ -128,6 +128,7 @@ qol_bview_spin(Application_Links *app){
   ctx.render_caller = qol_bview_render;
   ctx.hides_buffer = true;
   View_Context_Block ctx_block(app, view, &ctx);
+  change_active_panel_backwards(app);
 
   for (;;){
     User_Input in = get_next_input(app, EventPropertyGroup_Any, 0);

@@ -29,12 +29,12 @@ static i32 prev_error = 0;
 #endif
 
 #define systemf(...) do{                                       \
-i32 n = snprintf(SF_CMD, sizeof(SF_CMD), __VA_ARGS__);     \
-Assert(n < sizeof(SF_CMD));                                \
-SYSTEMF_PRINTF("%s\n", SF_CMD);                            \
-prev_error = system(SF_CMD);                               \
-if (prev_error != 0) error_state = 1;                      \
-}while(0)
+    i32 n = snprintf(SF_CMD, sizeof(SF_CMD), __VA_ARGS__);     \
+    Assert(n < sizeof(SF_CMD));                                \
+    SYSTEMF_PRINTF("%s\n", SF_CMD);                            \
+    prev_error = system(SF_CMD);                               \
+    if (prev_error != 0) error_state = 1;                      \
+  }while(0)
 
 internal void fm_execute_in_dir(char *dir, char *str, char *args);
 
@@ -108,19 +108,19 @@ internal void fm__swap_ptr(char **A, char **B);
 #if COMPILER_CL
 
 #define fm_add_to_line(line, str, ...) do{  \
-snprintf(line.build_options,            \
-line.build_max, "%s "str,               \
-line.build_options_prev, __VA_ARGS__);  \
-fm__swap_ptr(&line.build_options, &line.build_options_prev); \
-}while(0)
+    snprintf(line.build_options,            \
+             line.build_max, "%s "str,               \
+             line.build_options_prev, __VA_ARGS__);  \
+    fm__swap_ptr(&line.build_options, &line.build_options_prev); \
+  }while(0)
 
 #elif COMPILER_GCC | COMPILER_CLANG
 
 #define fm_add_to_line(line, str, ...) do{                   \
-snprintf(line.build_options, line.build_max, "%s " str,  \
-line.build_options_prev, ##__VA_ARGS__);                 \
-fm__swap_ptr(&line.build_options, &line.build_options_prev); \
-}while(0)
+    snprintf(line.build_options, line.build_max, "%s " str,  \
+             line.build_options_prev, ##__VA_ARGS__);                 \
+    fm__swap_ptr(&line.build_options, &line.build_options_prev); \
+  }while(0)
 
 #endif
 

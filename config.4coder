@@ -34,8 +34,8 @@ bot_line_count = 1.5f;
 // "|" - Thin-line
 // "_" - Underscore
 // "L" - Corner
-cursor_style = "L";
-mark_style   = "L";
+cursor_style = "";
+mark_style   = "";
 
 scroll_margin_x = 1.f;
 scroll_margin_y = 2.f;
@@ -46,7 +46,7 @@ enable_undo_fade_out = true;
 // the cursor and mark's roundness as a percentage of their width
 // (At 50 the left and right corners will be so round they form a semi-circle,
 //  hence 50 is the max)
-cursor_roundness = 0;
+cursor_roundness = 25;
 
 // mark_thickness is a pixel count value setting the
 // thickness of the mark wire box in original mode

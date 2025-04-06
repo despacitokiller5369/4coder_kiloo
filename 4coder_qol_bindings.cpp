@@ -76,14 +76,14 @@ qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code
   MC_Bind(toggle_filebar,             KeyCode_B, KeyCode_Alt);
   MC_Bind(MC_end_multi,               KeyCode_Escape);
 
+  Bind(qol_jump_down,              KeyCode_LeftBracket, KeyCode_Control);
+  Bind(qol_jump_up,                KeyCode_RightBracket, KeyCode_Control);
+
   Bind(qol_bview_active_to_bottom, KeyCode_Return, KeyCode_Alt, KeyCode_Shift);
   Bind(qol_bview_bottom_to_active, KeyCode_Return, KeyCode_Alt);
   Bind(qol_bview_toggle,           KeyCode_Return, KeyCode_Control, KeyCode_Shift);
   Bind(qol_bview_scroll_up,        KeyCode_PageUp, KeyCode_Control, KeyCode_Shift);
   Bind(qol_bview_scroll_down,      KeyCode_PageDown, KeyCode_Control, KeyCode_Shift);
-
-  Bind(qol_jump_down,              KeyCode_LeftBracket, KeyCode_Control);
-  Bind(qol_jump_up,                KeyCode_RightBracket, KeyCode_Control);
 
   SelectMap(file_id);
   MC_Bind(delete_char,         KeyCode_Delete);
@@ -161,8 +161,9 @@ qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code
   MC_Bind(move_right_alpha_numeric_or_camel_boundary, KeyCode_Right, KeyCode_Alt);
   MC_Bind(comment_line_toggle,        KeyCode_Semicolon, KeyCode_Control);
   MC_Bind(auto_indent_range,          KeyCode_Tab, KeyCode_Control);
+  MC_Bind(auto_indent_line_at_cursor, KeyCode_Tab, KeyCode_Shift);
   Bind(word_complete,                 KeyCode_Tab);
-  Bind(word_complete_prev,            KeyCode_Tab, KeyCode_Shift);
+  Bind(word_complete_prev,         KeyCode_Tab, KeyCode_Shift);
   Bind(word_complete_drop_down,       KeyCode_Tab, KeyCode_Shift, KeyCode_Control);
   MC_Bind(write_block,                KeyCode_R, KeyCode_Alt);
   MC_Bind(write_todo,                 KeyCode_T, KeyCode_Alt);

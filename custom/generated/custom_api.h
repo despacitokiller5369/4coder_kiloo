@@ -612,6 +612,7 @@ internal b32 panel_swap_children(Application_Links* app, Panel_ID panel_id);
 internal Panel_ID panel_get_root(Application_Links* app);
 internal Panel_ID panel_get_parent(Application_Links* app, Panel_ID panel_id);
 internal Panel_ID panel_get_child(Application_Links* app, Panel_ID panel_id, Side which_child);
+internal b32 view_close(Application_Links* app, View_ID view_id);
 internal Rect_f32 view_get_buffer_region(Application_Links* app, View_ID view_id);
 internal Buffer_Scroll view_get_buffer_scroll(Application_Links* app, View_ID view_id);
 internal b32 view_set_active(Application_Links* app, View_ID view_id);

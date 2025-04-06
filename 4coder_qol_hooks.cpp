@@ -15,7 +15,6 @@ CUSTOM_DOC("QOL command for responding to a startup event")
     String_ID file_map_id = vars_save_string_lit("keys_file");
     String_ID code_map_id = vars_save_string_lit("keys_code");
     qol_setup_default_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-    qol_setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
     TAB_setup_default_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
 
     b32 auto_load = def_get_config_b32(vars_save_string_lit("automatically_load_project"));
@@ -30,8 +29,8 @@ CUSTOM_DOC("QOL command for responding to a startup event")
     buffer_set_setting(app, qol_temp_buffer, BufferSetting_ReadOnly, false);
 
     TAB_startup_inner(app);
-    qol_bview_init(app);
-  }
+      qol_bview_init(app);
+}
 
   {
     def_audio_init();

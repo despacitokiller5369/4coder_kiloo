@@ -287,9 +287,9 @@ get_indentation_array(Application_Links *app, Arena *arena, Buffer_ID buffer, Ra
       }
 
 #define EMIT(N) \
-Stmnt(if (lines.first <= line_it){shifted_indentations[line_it]=N;} \
-if (line_it == lines.end){goto finished;} \
-actual_indent = N; )
+  Stmnt(if (lines.first <= line_it){shifted_indentations[line_it]=N;} \
+        if (line_it == lines.end){goto finished;} \
+        actual_indent = N; )
 
       i64 line_it = line_last_indented;
       if (lines.first <= line_cache.where_token_starts){

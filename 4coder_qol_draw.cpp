@@ -1,3 +1,20 @@
+
+enum QOL_Cursor_Kind{
+  QOL_Cursor_Rect,
+  QOL_Cursor_Thin,
+  QOL_Cursor_Under,
+  QOL_Cursor_Corner,
+};
+
+function QOL_Cursor_Kind qol_cursor_kind(String_Const_u8 str){
+  return (string_match(str, string_u8_litexpr("|")) ? QOL_Cursor_Thin   :
+          string_match(str, string_u8_litexpr("_")) ? QOL_Cursor_Under  : 
+          string_match(str, string_u8_litexpr("L")) ? QOL_Cursor_Corner : QOL_Cursor_Rect);
+}
+
+function Rect_f32 rect_vsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_left_right(r, t).min : rect_split_left_right_neg(r, t).max; }
+function Rect_f32 rect_hsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_top_bottom(r, t).min : rect_split_top_bottom_neg(r, t).max; }
+
 function void
 qol_draw_hex_color(Application_Links *app, View_ID view, Buffer_ID buffer, Text_Layout_ID text_layout_id){
   Scratch_Block scratch(app);
@@ -126,22 +143,6 @@ qol_draw_scopes(Application_Links *app, View_ID view, Buffer_ID buffer, Text_Lay
     }
   }
 }
-
-enum QOL_Cursor_Kind{
-  QOL_Cursor_Rect,
-  QOL_Cursor_Thin,
-  QOL_Cursor_Under,
-  QOL_Cursor_Corner,
-};
-
-function QOL_Cursor_Kind qol_cursor_kind(String_Const_u8 str){
-  return (string_match(str, string_u8_litexpr("|")) ? QOL_Cursor_Thin   :
-          string_match(str, string_u8_litexpr("_")) ? QOL_Cursor_Under  : 
-          string_match(str, string_u8_litexpr("L")) ? QOL_Cursor_Corner : QOL_Cursor_Rect);
-}
-
-function Rect_f32 rect_vsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_left_right(r, t).min : rect_split_left_right_neg(r, t).max; }
-function Rect_f32 rect_hsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_top_bottom(r, t).min : rect_split_top_bottom_neg(r, t).max; }
 
 function void
 qol_draw_cursor_mark(Application_Links *app, View_ID view_id, b32 is_active_view,

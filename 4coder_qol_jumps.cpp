@@ -59,7 +59,7 @@ function void qol_pre_command_inner(Application_Links *app, Managed_Scope scope)
 function void qol_post_command_inner(Application_Links *app, Managed_Scope scope){
   QOL_View_Jumps *jumps = scope_attachment(app, scope, qol_view_jumps, QOL_View_Jumps);
   QOL_Point point = qol_current_point(app);
-  if (jumps->check && qol_is_jump(app, jumps->point, point)){
+  if (jumps != 0 && jumps->check && qol_is_jump(app, jumps->point, point)){
     i64 cap = ArrayCount(jumps->ring);
     if (jumps->pos - jumps->bot == cap-1){
       qol_free_slot(app, jumps->ring[jumps->bot++ % cap]);
@@ -90,8 +90,11 @@ function void qol_jump_to_point(Application_Links *app, View_ID view, QOL_Point 
     center_view(app);
   }
   else{
+    Range_i64 range = Ii64(view_get_cursor_pos(app, view), point.pos);
+    Range_i64 lines = get_line_range_from_pos_range(app, point.buffer, range);
+    f32 y_diff = view_line_y_difference(app, view, lines.max, lines.min);
     view_set_cursor(app, view, seek_pos(point.pos));
-    if (auto_center_after_jumps){
+    if (rect_height(view_get_buffer_region(app, view)) < y_diff){
       center_view(app);
     }
   }
