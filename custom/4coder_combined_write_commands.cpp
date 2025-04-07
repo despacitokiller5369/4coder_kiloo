@@ -62,7 +62,7 @@ CUSTOM_DOC("At the cursor, insert a '{' and '};' separated by a blank line.")
 CUSTOM_COMMAND_SIG(open_long_braces_break)
 CUSTOM_DOC("At the cursor, insert a '{' and '}break;' separated by a blank line.")
 {
-  char text[] = "{\n\n}break;";
+  char text[] = "{\n\n} break;";
   i32 size = sizeof(text) - 1;
   long_braces(app, text, size);
 }
