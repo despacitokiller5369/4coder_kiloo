@@ -2,44 +2,37 @@
 // TODO(BYP): regex
 
 function void
-qol_isearch(Application_Links *app, Scan_Direction start_scan, i64 first_pos, String_Const_u8 query_init){
+qol_isearch(Application_Links *app, Scan_Direction scan, i64 first_pos, String_Const_u8 query_init){
   View_ID view = get_active_view(app, Access_ReadVisible);
   Buffer_ID buffer = view_get_buffer(app, view, Access_ReadVisible);
-  if (!buffer_exists(app, buffer)){
-    return;
-  }
-
-  i64 buffer_size = buffer_get_size(app, buffer);
+  if (!buffer_exists(app, buffer)){ return; }
 
   Query_Bar_Group group(app);
   Query_Bar bar = {};
-  if (start_query_bar(app, &bar, 0) == 0){
-    return;
-  }
+  if (start_query_bar(app, &bar, 0) == 0){ return; }
 
   Vec2_f32 old_margin = {};
   Vec2_f32 old_push_in = {};
   view_get_camera_bounds(app, view, &old_margin, &old_push_in);
 
-  Vec2_f32 margin = old_margin;
-  margin.y = clamp_bot(200.f, margin.y);
+  Vec2_f32 margin = V2f32(old_margin.x, clamp_bot(200.f, old_margin.y));
   view_set_camera_bounds(app, view, margin, old_push_in);
-
-  Scan_Direction scan = start_scan;
-  i64 pos = first_pos;
 
   u8 bar_string_space[256];
   bar.string = SCu8(bar_string_space, query_init.size);
   block_copy(bar.string.str, query_init.str, query_init.size);
-
-  String_Const_u8 isearch_str = string_u8_litexpr("I-Search: ");
-  String_Const_u8 rsearch_str = string_u8_litexpr("Reverse-I-Search: ");
-
   u64 match_size = bar.string.size;
+  i64 pos = first_pos;
+
+  Range_i64 range = buffer_range(app, buffer);
+  View_Context ctx = view_current_context(app, view);
+  Command_Map *map = mapping_get_map(ctx.mapping, default_get_map_id(app, view));
 
   User_Input in = {};
   for (;;){
-    bar.prompt = (scan == Scan_Forward ? isearch_str : rsearch_str);
+    bar.prompt = (scan == Scan_Forward ?
+                  string_u8_litexpr("I-Search: ") :
+                  string_u8_litexpr("Reverse-I-Search: "));
     isearch__update_highlight(app, view, Ii64_size(pos, match_size));
 
     in = get_next_input(app, EventPropertyGroup_Any, EventProperty_Escape);
@@ -52,8 +45,7 @@ qol_isearch(Application_Links *app, Scan_Direction start_scan, i64 first_pos, St
     b32 string_change = false;
     if (match_key_code(&in, KeyCode_Return) ||
         match_key_code(&in, KeyCode_Tab)){
-      Input_Modifier_Set *mods = &in.event.key.modifiers;
-      if (has_modifier(mods, KeyCode_Control)){
+      if (has_modifier(&in.event.key.modifiers, KeyCode_Control)){
         bar.string.size = cstring_length(previous_isearch_query);
         block_copy(bar.string.str, previous_isearch_query, bar.string.size);
       }
@@ -75,15 +67,9 @@ qol_isearch(Application_Links *app, Scan_Direction start_scan, i64 first_pos, St
       String_Const_u8 old_string = bar.string;
       b32 mod_ctl = has_modifier(&in.event.key.modifiers, KeyCode_Control);
       b32 mod_sft = has_modifier(&in.event.key.modifiers, KeyCode_Shift);
-      if (is_unmodified_key(&in.event)){
-        bar.string = backspace_utf8(bar.string);
-      }
-      else if (mod_ctl && !mod_sft){
-        bar.string = qol_ctrl_backspace_string(app, bar.string);
-      }
-      else if(mod_ctl && mod_sft){
-        bar.string.size = 0;
-      }
+      bar.string = (mod_ctl && !mod_sft ? qol_ctrl_backspace_string(app, bar.string) :
+                    mod_ctl &&  mod_sft ? string_prefix(bar.string, 0) :
+                    backspace_utf8(bar.string));
       string_change = (bar.string.size < old_string.size);
     }
 
@@ -91,93 +77,43 @@ qol_isearch(Application_Links *app, Scan_Direction start_scan, i64 first_pos, St
     b32 do_scroll_wheel = false;
     Scan_Direction change_scan = scan;
     if (!string_change){
-      if (match_key_code(&in, KeyCode_PageDown) ||
-          match_key_code(&in, KeyCode_Down)){
+      if (match_key_code(&in, KeyCode_Down) || match_key_code(&in, KeyCode_PageDown)){
         change_scan = Scan_Forward;
         do_scan_action = true;
       }
-      else if (match_key_code(&in, KeyCode_PageUp) ||
-               match_key_code(&in, KeyCode_Up)){
+      else if (match_key_code(&in, KeyCode_Up) || match_key_code(&in, KeyCode_PageUp)){
         change_scan = Scan_Backward;
         do_scan_action = true;
       }
       else{
-        // NOTE(allen): is the user trying to execute another command?
-        View_Context ctx = view_current_context(app, view);
-        Mapping *mapping = ctx.mapping;
-        Command_Map *map = mapping_get_map(mapping, ctx.map_id);
-        Command_Binding binding = map_get_binding_recursive(mapping, map, &in.event);
-        if (binding.custom != 0){
-          if (binding.custom == search){
-            change_scan = Scan_Forward;
-            do_scan_action = true;
-          }
-          else if (binding.custom == reverse_search){
-            change_scan = Scan_Backward;
-            do_scan_action = true;
-          }
-          else{
-            Command_Metadata *metadata = get_command_metadata(binding.custom);
-            if (metadata != 0){
-              if (metadata->is_ui){
-                view_enqueue_command_function(app, view, binding.custom);
-                break;
-              }
-            }
-            binding.custom(app);
-          }
+        Custom_Command_Function *f = map_get_binding_recursive(ctx.mapping, map, &in.event);
+        if (f == qol_search || f == qol_reverse_search){
+          change_scan = (f == qol_search ? Scan_Forward : Scan_Backward);
+          do_scan_action = true;
         }
-        else{
+        else if (f != 0){
+          Command_Metadata *metadata = get_command_metadata(f);
+          if (metadata != 0 && metadata->is_ui){
+            view_enqueue_command_function(app, view, f);
+            break;
+          }
+          f(app);
+        }
+        else {
           leave_current_input_unhandled(app);
         }
       }
     }
 
-    if (string_change){
-      switch (scan){
-        case Scan_Forward:
-        {
-          i64 new_pos = 0;
-          seek_string_insensitive_forward(app, buffer, pos - 1, 0, bar.string, &new_pos);
-          if (new_pos < buffer_size){
-            pos = new_pos;
-            match_size = bar.string.size;
-          }
-        }break;
-
-        case Scan_Backward:
-        {
-          i64 new_pos = 0;
-          seek_string_insensitive_backward(app, buffer, pos + 1, 0, bar.string, &new_pos);
-          if (new_pos >= 0){
-            pos = new_pos;
-            match_size = bar.string.size;
-          }
-        }break;
-      }
-    }
-    else if (do_scan_action){
+    if (string_change || do_scan_action){
       scan = change_scan;
-      switch (scan){
-        case Scan_Forward:
-        {
-          i64 new_pos = 0;
-          seek_string_insensitive_forward(app, buffer, pos, 0, bar.string, &new_pos);
-          if (new_pos < buffer_size){
-            pos = new_pos;
-            match_size = bar.string.size;
-          }
-        }break;
-
-        case Scan_Backward:
-        {
-          i64 new_pos = 0;
-          seek_string_insensitive_backward(app, buffer, pos, 0, bar.string, &new_pos);
-          if (new_pos >= 0){
-            pos = new_pos;
-            match_size = bar.string.size;
-          }
-        }break;
+      i64 new_pos = 0;
+      (scan == Scan_Forward ?
+       seek_string_insensitive_forward(app, buffer, pos - string_change, 0, bar.string, &new_pos) :
+       seek_string_insensitive_backward(app, buffer, pos + string_change, 0, bar.string, &new_pos));
+      if (range_contains(range, new_pos)){
+        pos = new_pos;
+        match_size = bar.string.size;
       }
     }
     else if (do_scroll_wheel){
@@ -198,6 +134,13 @@ qol_isearch(Application_Links *app, Scan_Direction start_scan, i64 first_pos, St
   view_set_camera_bounds(app, view, old_margin, old_push_in);
 }
 
+function void
+qol_isearch(Application_Links *app, Scan_Direction start_scan){
+  View_ID view = get_active_view(app, Access_ReadVisible);
+  i64 pos = view_get_cursor_pos(app, view);
+  qol_isearch(app, start_scan, pos, string_u8_empty);
+}
+
 CUSTOM_COMMAND_SIG(qol_search_identifier)
 CUSTOM_DOC("[QOL] I-search identifier under cursor")
 {
@@ -212,9 +155,13 @@ CUSTOM_DOC("[QOL] I-search identifier under cursor")
 }
 
 CUSTOM_COMMAND_SIG(qol_search)
-CUSTOM_DOC("[QOL] I-search")
+CUSTOM_DOC("[QOL] I-search down")
 {
-  View_ID view = get_active_view(app, Access_ReadVisible);
-  i64 cursor = view_get_cursor_pos(app, view);
-  qol_isearch(app, Scan_Forward, cursor, string_u8_empty);
+  qol_isearch(app, Scan_Forward);
+}
+
+CUSTOM_COMMAND_SIG(qol_reverse_search)
+CUSTOM_DOC("[QOL] I-search up")
+{
+  qol_isearch(app, Scan_Backward);
 }

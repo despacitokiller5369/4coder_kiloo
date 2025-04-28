@@ -42,6 +42,8 @@ global Face_ID qol_small_face;
 
 global Buffer_ID qol_temp_buffer;
 
+global View_ID qol_try_exit_view;
+
 global u8 g_qol_bot_buffer[1024];
 global String_u8 g_qol_bot_string = Su8(g_qol_bot_buffer, 0, sizeof(g_qol_bot_buffer));
 
@@ -62,6 +64,7 @@ function void qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 fil
 #include "4coder_qol_draw.cpp"
 #include "4coder_qol_lister.cpp"
 #include "4coder_qol_bview.cpp"
+#include "4coder_qol_snippets.cpp"
 
 #include "4coder_qol_bindings.cpp"
 #include "4coder_qol_hooks.cpp"
@@ -98,7 +101,7 @@ void custom_layer_init(Application_Links *app){
     set_custom_hook(app, HookID_ViewEventHandler, qol_view_input_handler);
     set_custom_hook(app, HookID_Tick, qol_tick);
     set_custom_hook(app, HookID_RenderCaller, qol_render_caller);
-    set_custom_hook(app, HookID_WholeScreenRenderCaller, default_whole_screen_render_caller);
+    set_custom_hook(app, HookID_WholeScreenRenderCaller, qol_whole_screen_render_caller);
 
     set_custom_hook(app, HookID_DeltaRule, fixed_time_cubic_delta);
     set_custom_hook_memory_size(app, HookID_DeltaRule,

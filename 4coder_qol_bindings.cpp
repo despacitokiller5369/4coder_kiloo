@@ -7,7 +7,7 @@ qol_setup_essential_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 co
 
   SelectMap(global_id);
   BindCore(qol_startup, CoreCode_Startup);
-  BindCore(TAB_try_exit, CoreCode_TryExit);
+  BindCore(qol_try_exit, CoreCode_TryExit);
   BindCore(clipboard_record_clip, CoreCode_NewClipboardContents);
   BindMouseWheel(qol_scroll_hovered);
   BindMouseWheel(mouse_wheel_change_face_size, KeyCode_Control);
@@ -116,6 +116,7 @@ qol_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file_id, i64 code
   MC_Bind(left_adjust_view,         KeyCode_E, KeyCode_Control, KeyCode_Shift);
   Bind(replace_in_range,            KeyCode_A, KeyCode_Control);
   Bind(qol_search,                  KeyCode_F, KeyCode_Control);
+  Bind(qol_reverse_search,          KeyCode_R, KeyCode_Control);
   Bind(list_all_locations,          KeyCode_F, KeyCode_Control, KeyCode_Shift);
   Bind(list_all_substring_locations_case_insensitive, KeyCode_F, KeyCode_Alt);
   Bind(goto_line,                   KeyCode_G, KeyCode_Control);

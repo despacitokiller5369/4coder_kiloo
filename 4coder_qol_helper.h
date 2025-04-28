@@ -50,3 +50,6 @@ qol_bot_text_y_offset(Application_Links *app, Face_Metrics metrics){
   f32 height_baseline = 0.5f*height_initial;
   return 2.f + height_baseline + 0.5f*height_char;
 }
+
+function Rect_f32 rect_vsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_left_right(r, t).min : rect_split_left_right_neg(r, t).max; }
+function Rect_f32 rect_hsplit(Rect_f32 r, f32 t, b32 c){ return !c ? rect_split_top_bottom(r, t).min : rect_split_top_bottom_neg(r, t).max; }

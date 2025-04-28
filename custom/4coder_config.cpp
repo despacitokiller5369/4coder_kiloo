@@ -423,6 +423,7 @@ def_config_parser_lvalue(Config_Parser *ctx){
 function Config_RValue*
 def_config_parser_rvalue(Config_Parser *ctx){
   Config_RValue *rvalue = 0;
+  i64 pos = ctx->token->pos;
   if (def_config_parser_recognize_cpp_kind(ctx, TokenCppKind_Identifier)){
     Config_LValue *l = def_config_parser_lvalue(ctx);
     require(l != 0);
@@ -473,6 +474,11 @@ def_config_parser_rvalue(Config_Parser *ctx){
     rvalue->type = ConfigRValueType_String;
     rvalue->string = interpreted;
   }
+
+  if (rvalue){
+    rvalue->range = Ii64(pos, ctx->token->pos);
+  }
+
   return(rvalue);
 }
 

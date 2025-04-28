@@ -65,6 +65,7 @@ struct Config_Compound{
 };
 
 struct Config_RValue{
+  Range_i64 range;
   Config_RValue_Type type;
   union{
     Config_LValue *lvalue;

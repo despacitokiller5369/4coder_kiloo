@@ -47,6 +47,7 @@ function void qol_free_slot(Application_Links *app, Point_Stack_Slot slot){
 }
 
 function b32 qol_is_jump(Application_Links *app, QOL_Point a, QOL_Point b){
+  if (!buffer_exists(app, a.buffer)){ return false; }
   return a.buffer != b.buffer || 1 < range_size(get_line_range_from_pos_range(app, a.buffer, Ii64(a.pos, b.pos)));
 }
 

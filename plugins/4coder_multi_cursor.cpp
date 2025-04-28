@@ -1,17 +1,6 @@
 // 4coder_multi_cursor.cpp
 // BYP
 
-#define MC_USE_STUB 0
-
-#if MC_USE_STUB
-// build.bat: `call %qol_dir%\custom\bin\buildsuper_x64-win.bat %qol_dir%\plugins\4coder_multi_cursor.cpp %1`
-#include "4coder_default_include.h"
-#include "4coder_default_include.cpp"
-#if !defined(META_PASS)
-#include "generated/managed_id_metadata.cpp"
-#endif
-#endif
-
 // TODO:
 // MC search helpers to allow user to leave MC at each keyword or token
 // MC Command Lister filtering and dispatch while MC active
@@ -39,6 +28,7 @@ struct MC_Node{
   MC_Node *next;
   i64 cursor_pos;
   i64 mark_pos;
+  f32 preferred_x;
   Vec2_f32 cur_position;
   Vec2_f32 nxt_position;
   String_Const_u8 clipboard;
@@ -249,8 +239,10 @@ function void MC_insert(Application_Links *app, i64 cursor_pos, i64 mark_pos){
   }
   sll_stack_push(mc_context.cursors, node);
 
-  node->cursor_pos = cursor_pos;
-  node->mark_pos = mark_pos;
+  Buffer_Cursor cursor = view_compute_cursor(app, view, seek_pos(cursor_pos));
+  node->preferred_x  = view_relative_xy_of_pos(app, view, cursor.line, cursor.pos).x;
+  node->cursor_pos   = cursor_pos;
+  node->mark_pos     = mark_pos;
   node->cur_position = node->nxt_position = V2f32(min_f32, min_f32);
 }
 
@@ -294,8 +286,9 @@ function void MCi_clipboard_push(String_Const_u8 string){
 }
 
 function void MC_pull(Application_Links *app, View_ID view, MC_Command_Kind kind, MC_Node *node){
-  node->cursor_pos = view_get_cursor_pos(app, view);
-  node->mark_pos = view_get_mark_pos(app, view);
+  node->cursor_pos  = view_get_cursor_pos(app, view);
+  node->mark_pos    = view_get_mark_pos(app, view);
+  node->preferred_x = view_get_preferred_x(app, view);
   if (kind == MC_Command_CursorCopy){
     node->clipboard = push_clipboard_index(&mc_context.arena_clipboard, 0, 0);
   }
@@ -304,6 +297,7 @@ function void MC_pull(Application_Links *app, View_ID view, MC_Command_Kind kind
 function void MC_push(Application_Links *app, View_ID view, MC_Command_Kind kind, MC_Node *node){
   view_set_cursor(app, view, seek_pos(node->cursor_pos));
   view_set_mark(app, view, seek_pos(node->mark_pos));
+  view_set_preferred_x(app, view, node->preferred_x);
   if (kind == MC_Command_CursorPaste){
     MCi_clipboard_push(node->clipboard);
   }
@@ -331,6 +325,7 @@ function void MC_apply(Application_Links *app, Custom_Command_Function *func, MC
   }
 
   Buffer_Scroll scroll = view_get_buffer_scroll(app, mc_context.view);
+String_Const_u8 clipboard = MCi_clipboard_pull();
   MC_Node prev = {mc_context.cursors};
   MC_pull(app, mc_context.view, kind, &prev);
   mc_context.cursors = &prev;
@@ -345,6 +340,7 @@ function void MC_apply(Application_Links *app, Custom_Command_Function *func, MC
   mc_context.cursors = prev.next;
 
   MC_push(app, mc_context.view, kind, &prev);
+MCi_clipboard_push(clipboard);
   view_set_buffer_scroll(app, mc_context.view, scroll, SetBufferScroll_NoCursorChange);
 }
 
@@ -406,44 +402,33 @@ CUSTOM_DOC("[MC] begins multi-cursor using cursor-mark block-rect")
   Buffer_ID buffer = view_get_buffer(app, view, Access_Always);
   i64 cursor_pos = view_get_cursor_pos(app, view);
   i64 mark_pos = view_get_mark_pos(app, view);
-  Range_i64 range = Ii64(cursor_pos, mark_pos);
 
-  i64 line_min = get_line_number_from_pos(app, buffer, range.min);
-  i64 line_max = get_line_number_from_pos(app, buffer, range.max);
-  Vec2_f32 p0 = view_relative_xy_of_pos(app, view, line_min, range.min);
-  Vec2_f32 p1 = view_relative_xy_of_pos(app, view, line_min, range.max);
-  Rect_f32 block_rect = Rf32(Min(p0.x, p1.x), Min(p0.y, p1.y), Max(p0.x, p1.x), Max(p0.y, p1.y));
+  i64 l0 = get_line_number_from_pos(app, buffer, Min(cursor_pos, mark_pos));
+  i64 l1 = get_line_number_from_pos(app, buffer, Max(cursor_pos, mark_pos));
+  Vec2_f32 p0 = view_relative_xy_of_pos(app, view, l0, Min(cursor_pos, mark_pos));
+  Vec2_f32 p1 = view_relative_xy_of_pos(app, view, l0, Max(cursor_pos, mark_pos));
+  Rect_f32 block = rect_union(Rf32(p0, p0), Rf32(p1, p1));
 
-  f32 line_advance = rect_height(block_rect)/f32(Max(1, line_max-line_min));
-  f32 wid = rect_width(block_rect);
-  block_rect = rect_inner(block_rect, -0.1f);
+  f32 h = rect_height(block) / f32(Max(1, l1-l0));
+  f32 w = rect_width(block);
+  block = rect_inner(block, -0.1f);
 
-  b32 cursor_is_top = cursor_pos < mark_pos;
-  i64 top_min_pos = max_i64;
-  i64 top_max_pos = max_i64;
-  i64 bot_min_pos = -1;
-  i64 bot_max_pos = -1;
-  for(i64 i=line_max; i>=line_min; i--){
+  Range_i64 x0 = Ii64_neg_inf;
+  Range_i64 x1 = Ii64_neg_inf;
+  for(i64 i=l1; i>=l0; i--){
     if(line_is_valid_and_blank(app, buffer, i)){ continue; }
-    Vec2_f32 min_point = block_rect.p0 + V2f32(0, line_advance*(i-line_min));
-    Vec2_f32 max_point = min_point + V2f32(wid,0);
-    i64 min_pos = view_pos_at_relative_xy(app, view, line_min, min_point);
-    i64 max_pos = view_pos_at_relative_xy(app, view, line_min, max_point);
-
-    Vec2_f32 min_p = view_relative_xy_of_pos(app, view, line_min, min_pos);
-    Vec2_f32 max_p = view_relative_xy_of_pos(app, view, line_min, max_pos);
-    if(!rect_contains_point(block_rect, min_p) || !rect_contains_point(block_rect, max_p)){ continue; }
-
-    top_min_pos = Min(top_min_pos, min_pos);
-    top_max_pos = Min(top_max_pos, max_pos);
-    bot_min_pos = Max(bot_min_pos, min_pos);
-    bot_max_pos = Max(bot_max_pos, max_pos);
+    i64 min_pos = view_pos_at_relative_xy(app, view, l0, block.p0 + V2f32(0, h*(i-l0)));
+    i64 max_pos = view_pos_at_relative_xy(app, view, l0, block.p0 + V2f32(w, h*(i-l0)));
+    if (!rect_contains_point(block, view_relative_xy_of_pos(app, view, l0, min_pos))){ continue; }
+    if (!rect_contains_point(block, view_relative_xy_of_pos(app, view, l0, max_pos))){ continue; }
+    x0 = range_union(x0, Ii64(min_pos));
+    x1 = range_union(x1, Ii64(max_pos));
     MC_insert(app, min_pos, max_pos);
   }
   // Ensure all view cursor is along the left-edge of the block rect
-  view_set_cursor(app, view, seek_pos(cursor_is_top ? top_min_pos : bot_min_pos));
+  view_set_cursor(app, view, seek_pos(cursor_pos < mark_pos ? x0.min : x0.max));
   MC_begin(app);
-  view_set_mark(app, view, seek_pos(cursor_is_top ? top_max_pos : bot_max_pos));
+  view_set_mark(app, view, seek_pos(cursor_pos < mark_pos ? x1.min : x1.max));
 }
 
 //- STUB
@@ -547,54 +532,3 @@ function void MC_setup_default_mapping(Mapping *mapping, i64 global_id, i64 file
   MC_Bind(open_long_braces_semicolon, KeyCode_LeftBracket, KeyCode_Control, KeyCode_Shift);
   MC_Bind(open_long_braces_break,     KeyCode_RightBracket, KeyCode_Control, KeyCode_Shift);
 }
-
-#if MC_USE_STUB
-function void MC_STUB_startup(Application_Links *app){
-  default_startup(app);
-
-  String_ID global_map_id = vars_save_string_lit("keys_global");
-  String_ID file_map_id = vars_save_string_lit("keys_file");
-  String_ID code_map_id = vars_save_string_lit("keys_code");
-  MC_setup_default_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-
-  MC_register(exit_4coder,                  MC_Command_Global);
-  MC_register(default_try_exit,             MC_Command_Global);
-  MC_register(mouse_wheel_change_face_size, MC_Command_Global);
-  MC_register(swap_panels,                  MC_Command_Global);
-
-  MC_register(copy,             MC_Command_CursorCopy);
-  MC_register(cut,              MC_Command_CursorCopy);
-  MC_register(paste_and_indent, MC_Command_CursorPaste);
-}
-
-void custom_layer_init(Application_Links *app){
-  Thread_Context *tctx = get_thread_context(app);
-  default_framework_init(app);
-
-  MC_init(app);
-
-  set_all_default_hooks(app);
-
-  set_custom_hook(app, HookID_Tick, MC_tick);
-  set_custom_hook(app, HookID_RenderCaller, MC_render_caller);
-  set_custom_hook(app, HookID_BufferEditRange, MC_buffer_edit_range);
-
-  String_ID global_map_id = vars_save_string_lit("keys_global");
-  String_ID file_map_id = vars_save_string_lit("keys_file");
-  String_ID code_map_id = vars_save_string_lit("keys_code");
-
-  mapping_init(tctx, &framework_mapping);
-
-  setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-  setup_default_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-
-  MC_setup_essential_mapping(&framework_mapping, global_map_id, file_map_id, code_map_id);
-
-  {
-    MappingScope();
-    SelectMapping(&framework_mapping);
-    SelectMap(global_map_id);
-    BindCore(MC_STUB_startup, CoreCode_Startup);
-  }
-}
-#endif

@@ -27,10 +27,11 @@ CUSTOM_DOC("QOL command for responding to a startup event")
     buffer_set_setting(app, qol_temp_buffer, BufferSetting_Unimportant, true);
     buffer_set_setting(app, qol_temp_buffer, BufferSetting_Unkillable, true);
     buffer_set_setting(app, qol_temp_buffer, BufferSetting_ReadOnly, false);
+    qol_snippet_init(app);
 
     TAB_startup_inner(app);
-      qol_bview_init(app);
-}
+    qol_bview_init(app);
+  }
 
   {
     def_audio_init();
@@ -45,14 +46,9 @@ CUSTOM_DOC("QOL command for responding to a startup event")
   desc.parameters.pt_size -= 4;
   qol_small_face = try_create_new_face(app, &desc);
 
-  {
-    String_Const_u8 non_word_chars = string_u8_litexpr(" \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-_");
-    for (u64 i = 0; i < non_word_chars.size; i += 1){
-      Character_Predicate pred = character_predicate_from_character(non_word_chars.str[i]);
-      character_predicate_non_word = character_predicate_or(&pred, &character_predicate_non_word);
-    }
-    character_predicate_word = character_predicate_not(&character_predicate_non_word);
-  }
+  String_Const_u8 non_word_chars = string_u8_litexpr(" \t\n/\\()\"':,.;<>~!@#$%^&*|+=[]{}`?-_");
+  character_predicate_non_word = character_predicate_from_chars(non_word_chars);
+  character_predicate_word     = character_predicate_not(&character_predicate_non_word);
 
   Scratch_Block scratch(app);
   set_active_color(get_color_table_by_name(def_get_config_string(scratch, vars_save_string_lit("default_theme_name"))));
@@ -71,6 +67,10 @@ qol_tick(Application_Links *app, Frame_Info frame_info){
   qol_interp(qol_cur_cursor_pos, qol_nxt_cursor_pos, dt, 1e-14f);
   if (!near_zero(qol_cur_cursor_pos - qol_nxt_cursor_pos, 0.5f)){
     animate_in_n_milliseconds(app, 0);
+  }
+
+  if (qol_try_exit_view != 0){
+    view_set_active(app, qol_try_exit_view);
   }
 
   qol_tick_colors(app, frame_info);

@@ -301,6 +301,7 @@ qol_run_lister(Application_Links *app, Lister *lister){
   View_Context ctx = view_current_context(app, view);
   ctx.hides_buffer = true;
   View_Context_Block ctx_block(app, view, &ctx);
+  lister->handlers.navigate(app, view, lister, 0);
 
   g_qol_lister_view = view;
   g_qol_lister = lister;
@@ -322,6 +323,7 @@ qol_run_lister(Application_Links *app, Lister *lister){
       case InputEventKind_TextInsert:{
         if (lister->handlers.write_character != 0){
           result = lister->handlers.write_character(app);
+          lister->handlers.navigate(app, view, lister, 0);
         }
       }break;
 
@@ -341,6 +343,7 @@ qol_run_lister(Application_Links *app, Lister *lister){
           case KeyCode_Backspace:{
             if (lister->handlers.backspace != 0){
               lister->handlers.backspace(app);
+              lister->handlers.navigate(app, view, lister, 0);
             }
             else if (lister->handlers.key_stroke != 0){
               result = lister->handlers.key_stroke(app);
